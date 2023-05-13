@@ -4,13 +4,27 @@ from Scraper import OfferScraper
 from Parser import *
 
 class Offer:
+    """
+    A class to represent an OLX offer
+
+    Attributes:
+    -----------
     url: str
+        URL of the offer on OLX
     title: str
-    price: float
     description: str
+    price: str
     is_negotiable: bool
     is_active: bool
+        True if the offer is active, False otherwise
     set_id: int
+        LEGO set number
+    
+    Methods:
+    --------
+    create_list() -> list
+        Returns a list of the offer's data
+    """
 
     # Constructor
     def __init__(self, url: str):
@@ -29,7 +43,6 @@ class Offer:
         self.is_negotiable = (scraper.scrape_negotiable())
         self.set_id = get_set_id(self.title)
 
-    # Method to create list from offer's data
     def create_list(self) -> list:
         return [
             self.url,

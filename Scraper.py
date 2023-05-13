@@ -1,8 +1,30 @@
 from bs4 import BeautifulSoup
 import requests
 
-# Class for scraping single offer details
 class OfferScraper:
+    """
+    A class for scraping data from a single offer
+
+    Attributes:
+    -----------
+    url: str
+        URL of the offer
+    offer: BeautifulSoup
+        BeautifulSoup object of the offer
+    
+    Methods:
+    --------
+    scrape_price() -> str
+        Scrapes the price of the offer
+    scrape_title() -> str
+        Scrapes the title of the offer
+    scrape_description() -> str
+        Scrapes the description of the offer
+    is_active() -> bool
+        Checks if the offer is active
+    scrape_negotiable() -> bool
+        Scrapes if the offer is negotiable
+    """
     url: str
     offer: BeautifulSoup
 
@@ -11,37 +33,49 @@ class OfferScraper:
         self.url = url
         self.offer = BeautifulSoup(requests.get(url).text, 'lxml')
 
-    # Method to scrape price
     def scrape_price(self):
         return self.offer.find('h3', class_='css-ddweki er34gjf0').text
 
-    # Method to scrape title
     def scrape_title(self):
         return self.offer.find('h1').text
     
-    # Method to scrape description
     def scrape_description(self):
         return self.offer.find('div', class_='css-bgzo2k er34gjf0').text
 
-    # Method to check if offer is active
     def is_active(self) -> bool:
         return True if self.offer.find('h1') else False
     
-    # Method to check if offer is negotiable
     def scrape_negotiable(self) -> bool:
         is_negotiable_el = self.offer.find(attrs = { 'data-testid': "negotiable-label" })
 
         return True if is_negotiable_el else False
     
 
-# Class for scraping all offers for given set
 class SetScraper:
+    """
+    A class for scraping data from a LEGO set
+
+    Attributes:
+    -----------
+    set_id: int
+        LEGO set number
+    url: str
+        URL of the first page of offers
+    used: bool
+        If True, scrapes only used sets, otherwise scrapes only new sets
+    
+    Methods:
+    --------
+    get_all_sets() -> list
+        Scrapes offers for a set from all pages
+    get_sets(page: int) -> list
+        Scrapes offers from a single page
+    """
     def __init__(self, set_id: int, used = False):
         self.set_id = set_id
         self.url = f'https://www.olx.pl/oferty/q-lego-{set_id}/'
         self.used = used
     
-    # Method for scraping all offers
     def get_all_sets(self) -> list:
         offer_page = BeautifulSoup(requests.get(self.url).text, 'lxml')
         page_count = int(offer_page.select_one('ul.pagination-list > li:last-of-type').text)
@@ -55,7 +89,6 @@ class SetScraper:
 
         return offer_links
     
-    # Method for scraping offers from single page
     def get_sets(self, page: int) -> list:
         offer_page_url = self.url + f'?page={page}'
         offer_page = BeautifulSoup(requests.get(offer_page_url).text, 'lxml')
