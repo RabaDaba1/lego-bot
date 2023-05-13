@@ -10,27 +10,28 @@ class Offer:
     Attributes:
     -----------
     url: str
-        URL of the offer on OLX
+        URL of the offer
+    id: str
+        OLX ID of the offer (last part of the URL)
     title: str
     description: str
     price: str
     is_negotiable: bool
     is_active: bool
-        True if the offer is active, False otherwise
     set_id: int
         LEGO set number
     
     Methods:
     --------
     create_list() -> list
-        Returns a list of the offer's data
+        Returns a list with the offer's data
     """
 
-    # Constructor
     def __init__(self, url: str):
         scraper = OfferScraper(url)
 
         self.url = url
+        self.id = parse_id(url)
         self.is_active = scraper.is_active()
         
         if not self.is_active:

@@ -28,7 +28,6 @@ class OfferScraper:
     url: str
     offer: BeautifulSoup
 
-    # Constructor
     def __init__(self, url: str):
         self.url = url
         self.offer = BeautifulSoup(requests.get(url).text, 'lxml')
@@ -53,14 +52,14 @@ class OfferScraper:
 
 class SetScraper:
     """
-    A class for scraping data from a LEGO set
+    A class for scraping all offers for a single LEGO set
 
     Attributes:
     -----------
     set_id: int
         LEGO set number
     url: str
-        URL of the first page of offers
+        URL of the first page with offers
     used: bool
         If True, scrapes only used sets, otherwise scrapes only new sets
     
@@ -71,6 +70,7 @@ class SetScraper:
     get_sets(page: int) -> list
         Scrapes offers from a single page
     """
+
     def __init__(self, set_id: int, used = False):
         self.set_id = set_id
         self.url = f'https://www.olx.pl/oferty/q-lego-{set_id}/'
