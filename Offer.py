@@ -16,7 +16,7 @@ class Offer:
     set_id: int
         LEGO set number
     date_added: Datetime.date
-    date_sold: Datetime.date
+    date_sold: Datetime.date (default: None)
     title: str
     description: str
     price: str

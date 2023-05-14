@@ -26,6 +26,7 @@ class Set:
     urls: list
         List of urls to each offer for the LEGO set
     offers: list[Offer]
+        List of offers for the LEGO set
     """
     set_id: int
     urls: list
@@ -46,7 +47,6 @@ class Set:
                 continue
             else:
                 self.offers.append(offer)
-
 
     def update_offers(self):
         db.update_offers(self.set_id, self.offers)
