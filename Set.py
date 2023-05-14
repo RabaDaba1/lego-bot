@@ -1,13 +1,19 @@
 from Scraper import SetScraper
+from Offer import Offer
 import db
-import sqlite3 
 
 def add_set(set_id: int):
-    db.add_set(set_id)
+    try:
+        db.add_set(set_id)
+    except Exception as e:
+        print(e)
 
 
 def delete_set(set_id: int):
-    db.delete_set(set_id)
+    try:
+        db.delete_set(set_id)
+    except Exception as e:
+        print(e)
 
 class Set:
     """
@@ -17,12 +23,30 @@ class Set:
     -----------
     set_id: int
         LEGO set number
-    offers: list
-        List of OLX offers for the LEGO set
+    urls: list
+        List of urls to each offer for the LEGO set
+    offers: list[Offer]
     """
     set_id: int
-    offers: list
+    urls: list
+    offers: list[Offer]
 
     def __init__(self, set_id: int, used = False):
         self.set_id = set_id
-        self.offers = SetScraper(set_id).get_all_sets()
+        self.urls = SetScraper(set_id).get_all_sets()
+
+        self.offers = []
+        for url in self.urls:
+            try:
+                offer = Offer(url)
+            except Exception as e:
+                print(e)
+                continue
+            except:
+                continue
+            else:
+                self.offers.append(offer)
+
+
+    def update_offers(self):
+        db.update_offers(self.set_id, self.offers)

@@ -1,4 +1,6 @@
 import sqlite3
+from datetime import date
+from Offer import Offer
 
 db_path = './database/database.db'
 
@@ -32,10 +34,11 @@ def add_set(set_id: int):
     # Create a new table for the set
     c.execute(f"""
         CREATE TABLE IF NOT EXISTS set_{set_id} (
-            id TEXT PRIMARY KEY NOT NULL,
+            offer_id TEXT PRIMARY KEY NOT NULL,
             url TEXT NOT NULL,
             set_id INTEGER,
             date_added TEXT,
+            date_sold TEXT,
             title TEXT,
             description TEXT,
             price REAL,
@@ -107,3 +110,159 @@ def get_all_tables():
     conn.close()
 
     return sets
+
+def get_all_offers(set_id: int):
+    """Returns a list of all offers for a set"""
+
+    # Check if set is in database
+    if not set_in_sets(set_id):
+        raise Exception(f'Set {set_id} is not in database')
+    
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+
+    c.execute(f"""
+        SELECT *
+        FROM set_{set_id};
+    """)
+
+    offers = []
+    for offer in c.fetchall():
+        offers.append(offer)
+
+    conn.close()
+
+    return offers
+
+def get_table_column_names(table: str):
+    """Returns a list of all column names in a table"""
+
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+
+    c.execute(f"""
+        PRAGMA table_info({table});
+    """)
+
+    columns = [column[1] for column in c.fetchall()]
+
+    conn.close()
+
+    return columns
+
+def update_offers(set_id: int, offers: list[Offer]):
+    """Updates offers in database for specified set"""
+
+    # Check if set is in database
+    if not set_in_sets(set_id):
+        raise Exception(f'Set {set_id} is not in database')
+    
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+
+    for offer in offers:
+        # Check if offer is already in database by checking its ID
+        c.execute(f"""
+            SELECT offer_id
+            FROM set_{set_id}
+            WHERE offer_id = ?;
+            """,
+            (offer.offer_id, )
+        )
+        offer_id = c.fetchone()
+
+        # If offer is not in database, add it
+        if not offer_id:
+            c.execute(f"""
+                INSERT INTO set_{set_id} (
+                    offer_id,
+                    url,
+                    set_id,
+                    date_added,
+                    date_sold,
+                    title,
+                    description,
+                    price,
+                    is_negotiable,
+                    is_active
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+            """, offer.get_tuple())
+
+            continue
+        
+        c.execute(f"""
+            SELECT date_added
+            FROM set_{set_id}
+            WHERE offer_id = ?;
+            """,
+            (offer.offer_id, )
+        )
+        date_added = date(c.fetchone()[0])
+
+        # Check if offer is active in database
+        c.execute(f"""
+            SELECT is_active
+            FROM set_{set_id}
+            WHERE offer_id = ?;
+            """,
+            (offer.offer_id, )
+        )
+        is_active = c.fetchone()[0]
+
+        # If offer is in database, update its values except for ID, date_added
+        # Check if offer expired
+        if not offer.is_active and is_active and date.today() - date_added >= 30:
+            c.execute(f"""
+                    UPDATE set_{set_id}
+                    WHERE offer_id = ?
+                    SET
+                        is_active = 0
+                    """,
+                    (offer.offer_id, )
+                )
+        # If offer got sold
+        elif is_active and not offer.is_active:
+            c.execute(f"""
+                UPDATE set_{set_id}
+                WHERE offer_id = '{offer.offer_id}'
+                SET
+                    date_sold = ?,
+                    is_active = ?
+                """,
+                (date.today().isoformat(), offer.is_active)
+            )
+        # If offer got reactivated
+        elif not is_active and offer.is_active:
+            c.execute(f"""
+                UPDATE set_{set_id}
+                WHERE offer_id = ?
+                SET
+                    date_sold = NULL,
+                    is_active = ?
+                """,
+                (offer.offer_id, offer.is_active)
+            )
+        # If offer is active and not sold
+        elif is_active and offer.is_active:
+            c.execute(f"""
+                UPDATE set_{set_id}
+                WHERE offer_id = '{offer.offer_id}'
+                SET
+                    url = ?,
+                    set_id = ?,
+                    date_sold = ?,
+                    title = ?,
+                    description = ?,
+                    price = ?,
+                    is_negotiable = ?,
+                    is_active = ?
+                """,
+                (offer.url, offer.set_id, offer.date_sold, offer.title, offer.description, offer.price, offer.is_negotiable, offer.is_active)
+            )
+
+        
+    conn.commit()
+    conn.close()
+
+    print(f'Offers for set {set_id} updated')

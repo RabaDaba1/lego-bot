@@ -45,7 +45,6 @@ class OfferScraper:
             try:
                 return func(self)
             except:
-                print('Error while executing' + func.__name__)
                 raise Exception('Error while executing' + func.__name__)
         return wrapper
     
@@ -94,7 +93,7 @@ class SetScraper:
     get_all_sets() -> list
         Scrapes all OLX offers for a set
     get_sets(page: int) -> list
-        Scrapes offers from a single page
+        Scrapes offers from the offers list page
     """
 
     def __init__(self, set_id: int, used = False):

@@ -11,11 +11,12 @@ class Offer:
     -----------
     url: str
         URL of the offer
-    id: str
+    offer_id: str
         OLX ID of the offer (last part of the URL)
     set_id: int
         LEGO set number
     date_added: Datetime.date
+    date_sold: Datetime.date
     title: str
     description: str
     price: str
@@ -31,33 +32,36 @@ class Offer:
     def __init__(self, url: str):
         scraper = OfferScraper(url)
 
-        try:
-            self.url = url
-            self.id = parse_id(url)
-            self.is_active = scraper.is_active()
-            
-            if not self.is_active:
-                return
-            
-            # Scrape and parse offer's data
-            self.date_added = parse_date(scraper.scrape_date())
-            self.title = parse_title(scraper.scrape_title())
-            self.price = parse_price(scraper.scrape_price())
-            self.description = parse_description(scraper.scrape_description())
-            self.is_negotiable = (scraper.scrape_negotiable())
-            self.set_id = get_set_id(self.title)
-        except Exception as e:
-            print(e)
+        self.url = url
+        self.offer_id = parse_offer_id(url)
+        self.is_active = scraper.is_active()
+        self.date_sold = None
+        
+        if not self.is_active:
+            return
+        
+        # Scrape and parse offer's data
+        self.date_added = parse_date(scraper.scrape_date())
+        self.title = remove_accents(parse_title(scraper.scrape_title()))
+        self.price = parse_price(scraper.scrape_price())
+        self.description = remove_accents(parse_description(scraper.scrape_description()))
+        self.is_negotiable = (scraper.scrape_negotiable())
+        self.set_id = get_set_id(self.title)
 
-    def create_list(self) -> list:
-        return [
-            self.id,
+    def get_tuple(self) -> tuple:
+        return (
+            self.offer_id,
             self.url,
             self.set_id,
             self.date_added,
+            self.date_sold,
             self.title,
             self.description,
             self.price,
             self.is_negotiable,
             self.is_active
-        ]
+        )
+    
+    def create_list(self) -> list:
+        return list(self.get_tuple())
+    
