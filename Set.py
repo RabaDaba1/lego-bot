@@ -40,6 +40,8 @@ class Set:
         for url in self.urls:
             try:
                 offer = Offer(url)
+                if offer.set_id != set_id:
+                    continue
             except Exception as e:
                 print(e)
                 continue
