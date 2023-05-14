@@ -13,13 +13,14 @@ class Offer:
         URL of the offer
     id: str
         OLX ID of the offer (last part of the URL)
+    set_id: int
+        LEGO set number
+    date_added: Datetime.date
     title: str
     description: str
     price: str
     is_negotiable: bool
     is_active: bool
-    set_id: int
-        LEGO set number
     
     Methods:
     --------
@@ -39,6 +40,7 @@ class Offer:
                 return
             
             # Scrape and parse offer's data
+            self.date_added = parse_date(scraper.scrape_date())
             self.title = parse_title(scraper.scrape_title())
             self.price = parse_price(scraper.scrape_price())
             self.description = parse_description(scraper.scrape_description())
@@ -49,9 +51,10 @@ class Offer:
 
     def create_list(self) -> list:
         return [
-            self.url,
             self.id,
+            self.url,
             self.set_id,
+            self.date_added,
             self.title,
             self.description,
             self.price,

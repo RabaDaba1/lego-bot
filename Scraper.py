@@ -14,6 +14,8 @@ class OfferScraper:
     
     Methods:
     --------
+    scrape_date() -> str
+        Scrapes the date of the offer
     scrape_price() -> str
         Scrapes the price of the offer
     scrape_title() -> str
@@ -46,6 +48,10 @@ class OfferScraper:
                 print('Error while executing' + func.__name__)
                 raise Exception('Error while executing' + func.__name__)
         return wrapper
+    
+    @catch_exceptions
+    def scrape_date(self):
+        return self.offer.select_one('span[data-cy="ad-posted-at"]').text
 
     @catch_exceptions
     def scrape_price(self):
