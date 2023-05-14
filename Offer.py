@@ -30,19 +30,22 @@ class Offer:
     def __init__(self, url: str):
         scraper = OfferScraper(url)
 
-        self.url = url
-        self.id = parse_id(url)
-        self.is_active = scraper.is_active()
-        
-        if not self.is_active:
-            return
-        
-        # Parse offer's data
-        self.title = parse_title(scraper.scrape_title())
-        self.price = parse_price(scraper.scrape_price())
-        self.description = parse_description(scraper.scrape_description())
-        self.is_negotiable = (scraper.scrape_negotiable())
-        self.set_id = get_set_id(self.title)
+        try:
+            self.url = url
+            self.id = parse_id(url)
+            self.is_active = scraper.is_active()
+            
+            if not self.is_active:
+                return
+            
+            # Scrape and parse offer's data
+            self.title = parse_title(scraper.scrape_title())
+            self.price = parse_price(scraper.scrape_price())
+            self.description = parse_description(scraper.scrape_description())
+            self.is_negotiable = (scraper.scrape_negotiable())
+            self.set_id = get_set_id(self.title)
+        except Exception as e:
+            print(e)
 
     def create_list(self) -> list:
         return [

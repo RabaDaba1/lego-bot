@@ -24,6 +24,11 @@ class OfferScraper:
         Checks if the offer is active
     scrape_negotiable() -> bool
         Scrapes if the offer is negotiable
+
+    Decorators:
+    -----------
+    catch_exceptions(func)
+        Decorator to catch exceptions while scraping
     """
     url: str
     offer: BeautifulSoup
@@ -32,18 +37,33 @@ class OfferScraper:
         self.url = url
         self.offer = BeautifulSoup(requests.get(url).text, 'lxml')
 
+    def catch_exceptions(func):
+        """Decorator to catch exceptions while scraping"""
+        def wrapper(self):
+            try:
+                return func(self)
+            except:
+                print('Error while executing' + func.__name__)
+                raise Exception('Error while executing' + func.__name__)
+        return wrapper
+
+    @catch_exceptions
     def scrape_price(self):
         return self.offer.find('h3', class_='css-ddweki er34gjf0').text
 
+    @catch_exceptions
     def scrape_title(self):
         return self.offer.find('h1').text
     
+    @catch_exceptions
     def scrape_description(self):
         return self.offer.find('div', class_='css-bgzo2k er34gjf0').text
 
+    @catch_exceptions
     def is_active(self) -> bool:
         return True if self.offer.find('h1') else False
     
+    @catch_exceptions
     def scrape_negotiable(self) -> bool:
         is_negotiable_el = self.offer.find(attrs = { 'data-testid': "negotiable-label" })
 
