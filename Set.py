@@ -34,7 +34,14 @@ class Set:
 
     def __init__(self, set_id: int, used = False):
         self.set_id = set_id
+        
+        # Get all urls from OLX
         self.urls = SetScraper(set_id).get_all_sets()
+        # Get all urls from database
+        self.urls += db.get_set_urls(set_id)
+
+        # Remove duplicates
+        self.urls = list(set(self.urls))
 
         self.offers = []
         for url in self.urls:

@@ -134,6 +134,27 @@ def get_all_offers(set_id: int):
 
     return offers
 
+def get_sets_urls(set_id: int):
+    """Returns a list of all offer URLs from a database table for a set"""
+
+    # Check if set is in database
+    if not set_in_sets(set_id):
+        raise Exception(f'Set {set_id} is not in database')
+    
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+
+    c.execute(f"""
+        SELECT url
+        FROM set_{set_id};
+    """)
+
+    urls = [url[0] for url in c.fetchall()]
+
+    conn.close()
+
+    return urls
+
 def get_table_column_names(table: str):
     """Returns a list of all column names in a table"""
 
