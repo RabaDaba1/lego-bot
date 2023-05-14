@@ -1,5 +1,5 @@
 import sqlite3
-from datetime import date
+from datetime import date, datetime
 from Offer import Offer
 
 db_path = './database/database.db'
@@ -198,7 +198,7 @@ def update_offers(set_id: int, offers: list[Offer]):
             """,
             (offer.offer_id, )
         )
-        date_added = date(c.fetchone()[0])
+        date_added = datetime.strptime(c.fetchone()[0], '%Y-%m-%d').date()
 
         c.execute(f"""
             SELECT is_active
@@ -213,9 +213,9 @@ def update_offers(set_id: int, offers: list[Offer]):
         if not offer.is_active and is_active and date.today() - date_added >= 30:
             c.execute(f"""
                     UPDATE set_{set_id}
-                    WHERE offer_id = ?
                     SET
                         is_active = 0
+                    WHERE offer_id = ?
                     """,
                     (offer.offer_id, )
                 )
@@ -223,29 +223,28 @@ def update_offers(set_id: int, offers: list[Offer]):
         elif is_active and not offer.is_active:
             c.execute(f"""
                 UPDATE set_{set_id}
-                WHERE offer_id = '{offer.offer_id}'
                 SET
                     date_sold = ?,
                     is_active = ?
+                WHERE offer_id = ?
                 """,
-                (date.today().isoformat(), offer.is_active)
+                (date.today().isoformat(), offer.is_active, offer.offer_id)
             )
         # If offer got reactivated
         elif not is_active and offer.is_active:
             c.execute(f"""
                 UPDATE set_{set_id}
-                WHERE offer_id = ?
                 SET
                     date_sold = NULL,
                     is_active = ?
+                WHERE offer_id = ?
                 """,
-                (offer.offer_id, offer.is_active)
+                (offer.is_active, offer.offer_id)
             )
         # If offer is active and not sold
         elif is_active and offer.is_active:
             c.execute(f"""
                 UPDATE set_{set_id}
-                WHERE offer_id = '{offer.offer_id}'
                 SET
                     url = ?,
                     set_id = ?,
@@ -255,8 +254,9 @@ def update_offers(set_id: int, offers: list[Offer]):
                     price = ?,
                     is_negotiable = ?,
                     is_active = ?
+                WHERE offer_id = ?
                 """,
-                (offer.url, offer.set_id, offer.date_sold, offer.title, offer.description, offer.price, offer.is_negotiable, offer.is_active)
+                (offer.url, offer.set_id, offer.date_sold, offer.title, offer.description, offer.price, offer.is_negotiable, offer.is_active, offer.offer_id)
             )
 
         

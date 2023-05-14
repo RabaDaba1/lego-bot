@@ -46,6 +46,7 @@ class Set:
                 print(e)
                 continue
             except:
+                print('Unknown error while creating offer:', url)
                 continue
             else:
                 self.offers.append(offer)
