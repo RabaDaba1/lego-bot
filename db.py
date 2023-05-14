@@ -218,7 +218,9 @@ def update_offers(set_id: int, offers: list[Offer]):
                     WHERE offer_id = ?
                     """,
                     (offer.offer_id, )
-                )
+            )
+            
+            print(f'Offer expired: {offer.url}')
         # If offer got sold
         elif is_active and not offer.is_active:
             c.execute(f"""
@@ -230,6 +232,8 @@ def update_offers(set_id: int, offers: list[Offer]):
                 """,
                 (date.today().isoformat(), offer.is_active, offer.offer_id)
             )
+
+            print(f'Offer sold: {offer.url}')
         # If offer got reactivated
         elif not is_active and offer.is_active:
             c.execute(f"""
@@ -241,6 +245,8 @@ def update_offers(set_id: int, offers: list[Offer]):
                 """,
                 (offer.is_active, offer.offer_id)
             )
+
+            print(f'Offer reactivated: {offer.url}')
         # If offer is active and not sold
         elif is_active and offer.is_active:
             c.execute(f"""
@@ -259,7 +265,6 @@ def update_offers(set_id: int, offers: list[Offer]):
                 (offer.url, offer.set_id, offer.date_sold, offer.title, offer.description, offer.price, offer.is_negotiable, offer.is_active, offer.offer_id)
             )
 
-        
     conn.commit()
     conn.close()
 
