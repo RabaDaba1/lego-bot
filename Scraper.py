@@ -66,7 +66,7 @@ class SetScraper:
     Methods:
     --------
     get_all_sets() -> list
-        Scrapes offers for a set from all pages
+        Scrapes all OLX offers for a set
     get_sets(page: int) -> list
         Scrapes offers from a single page
     """
