@@ -200,7 +200,6 @@ def update_offers(set_id: int, offers: list[Offer]):
         )
         date_added = date(c.fetchone()[0])
 
-        # Check if offer is active in database
         c.execute(f"""
             SELECT is_active
             FROM set_{set_id}
@@ -210,7 +209,6 @@ def update_offers(set_id: int, offers: list[Offer]):
         )
         is_active = c.fetchone()[0]
 
-        # If offer is in database, update its values except for ID, date_added
         # Check if offer expired
         if not offer.is_active and is_active and date.today() - date_added >= 30:
             c.execute(f"""
