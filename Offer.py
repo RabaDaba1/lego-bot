@@ -47,6 +47,7 @@ class Offer:
     def create_list(self) -> list:
         return [
             self.url,
+            self.id,
             self.set_id,
             self.title,
             self.description,

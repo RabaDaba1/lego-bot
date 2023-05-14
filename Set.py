@@ -1,31 +1,51 @@
 from Scraper import SetScraper
-import pandas as pd
-
-sets_csv = './database/sets.csv'
+import sqlite3 
 
 def add_set(set_id: int):
-    """Adds a new LEGO set to sets.csv"""
-    
-    df = pd.read_csv(sets_csv)
+    """Adds a new LEGO set to sets table"""
 
-    if set_id in df['set_id']:
+    try:
+        conn = sqlite3.connect('./database/database.db')
+    except sqlite3.Error as e:
+        print('Error connecting to database')
+        print(e)
+
+    c = conn.cursor()
+    try:
+        c.execute(f"""
+            INSERT INTO sets (set_id)
+            VALUES ({set_id});
+        """)
+    except sqlite3.IntegrityError as e:
         print(f'Set {set_id} is already in database')
-        return
-    
-    df = pd.concat([df, pd.DataFrame([{ 'set_id': 40539 }])], ignore_index=True)
-    df.to_csv(sets_csv, index=False)
+        print(e)
+        conn.commit()
+    finally:
+        conn.close()
 
 def delete_set(set_id: int):
-    """Deletes a LEGO set from sets.csv"""
+    """Deletes a LEGO set from sets table"""
 
-    df = pd.read_csv(sets_csv)
+    try:
+        conn = sqlite3.connect('./database/database.db')
+    except sqlite3.Error as e:
+        print('Error connecting to database')
+        print(e)
 
-    if set_id not in df['set_id']:
+    c = conn.cursor()
+    
+    try:
+        c.execute(f"""
+            DELETE FROM sets
+            WHERE set_id = {set_id};
+        """)
+    except sqlite3.IntegrityError as e:
         print(f'Set {set_id} is not in database')
-        return
+        print(e)
+        conn.commit()
+    finally:
+        conn.close()
 
-    df = df[df['set_id'] != set_id]
-    df.to_csv(sets_csv, index=False)
 
 class Set:
     """
