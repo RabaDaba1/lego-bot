@@ -7,7 +7,7 @@ db_path = './database/database.db'
 #--------------------#
 #-Checking functions-#
 #--------------------#
-def set_in_sets(set_id: int) -> bool:
+def set_in_db(set_id: int) -> bool:
     """Returns True if set is in database, False otherwise"""
 
     return set_id in get_all_sets()
@@ -18,47 +18,10 @@ def set_table_exists(set_id: int) -> bool:
     return f'set_{set_id}' in get_all_tables()
 
 def offer_in_db(offer_id: str, set_id: int = None) -> int:
-    """
-    Returns set_id if offer is in database, 0 otherwise
-    """
-    if set_id:
-        # Check if table exists
-        if not set_table_exists(set_id):
-            raise Exception(f'Set {set_id} table does not exist')
-        
-        # Check if set is in database
-        if not set_in_sets(set_id):
-            raise Exception(f'Set {set_id} is not in sets table')
-        
-    
-    conn = sqlite3.connect(db_path)
-    c = conn.cursor()
+    """Returns True if offer is in database, False otherwise"""
+    offer = get_offer(offer_id, set_id)
 
-    # If set_id is passed, check specific table
-    if set_id:
-        command = f"""
-            SELECT offer_id
-            FROM set_{set_id}
-            WHERE offer_id = ?;
-        """
-        c.execute(command, (offer_id, ))
-        offer = c.fetchone()
-        conn.close()
-
-        return set_id if offer else 0
-    # If set_id is not passed, check all tables
-    else:
-        for set_id in get_all_sets():
-            command = f"""
-                SELECT offer_id
-                FROM set_{set_id}
-                WHERE offer_id = ?;
-            """
-            c.execute(command, (offer_id, ))
-            if c.fetchone():
-                conn.close()
-                return set_id
-        return 0
+    return True if offer else False
 
 #--------------------------------#
 #-Functions for editing database-#
@@ -67,13 +30,13 @@ def add_set(set_id: int):
     """Adds a new LEGO set to sets table and creates a new table for it"""
 
     # Check if set is already in database
-    if set_in_sets(set_id):
+    if set_in_db(set_id):
         raise Exception(f'Set {set_id} is already in database')
     
     conn = sqlite3.connect(db_path)
     c = conn.cursor()
     
-    # Add set to sets table
+    # Add set to 'sets' table
     c.execute(f"""
         INSERT INTO sets (set_id)
         VALUES ({set_id});
@@ -101,7 +64,7 @@ def add_set(set_id: int):
 
 def delete_set(set_id: int):
     """Deletes a LEGO set from sets table and deletes its table"""
-    in_sets = set_in_sets(set_id)
+    in_sets = set_in_db(set_id)
     table_exists = set_table_exists(set_id)
 
     # Check if set is in database
@@ -167,11 +130,53 @@ def add_offer(offer: Offer):
         conn.close()
         raise Exception(f'Offer {offer.offer_id} is already in database in table set_{offer.set_id}')
 
-
 #-------------------------------#
 #-Functions for retrieving data-#
 #-------------------------------#
-def get_all_sets():
+def get_offer(offer_id: int, set_id: int = None) -> tuple:
+    """Returns an offer tuple from database"""
+
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+    
+    offer = tuple()
+
+    if set_id and not set_in_db(set_id):
+        raise Exception(f'Set number {set_id} is not in database')
+
+    # If set_id is passed, search only that set table
+    if set_id:
+        c.execute(f"""
+            SELECT *
+            FROM set_{set_id}
+            WHERE offer_id = ?;
+            """,
+            (offer_id, )
+        )
+
+        offer = c.fetchone()
+    else:
+        # If set_id is not passed, search all set tables
+        tables = get_set_tables()
+
+        for table in tables:
+            c.execute(f"""
+                SELECT *
+                FROM {table}
+                WHERE offer_id = ?;
+                """,
+                (offer_id, )
+            )
+
+            offer = c.fetchone()
+            if offer:
+                break
+
+    conn.close()
+
+    return offer or tuple()
+
+def get_all_sets() -> list[int]:
     """Returns a list of all sets in sets table"""
 
     conn = sqlite3.connect('./database/database.db')
@@ -187,7 +192,7 @@ def get_all_sets():
     
     return sets
 
-def get_all_tables():
+def get_all_tables() -> list[str]:
     """Prints all tables in database"""
 
     conn = sqlite3.connect(db_path)
@@ -201,11 +206,18 @@ def get_all_tables():
 
     return sets
 
-def get_all_offers(set_id: int):
+def get_set_tables() -> list[str]:
+    """Returns a list of all set tables in database"""
+
+    tables = get_all_tables()
+    
+    return [table for table in tables if table.startswith('set_')]
+
+def get_all_offers(set_id: int) -> list[tuple]:
     """Returns a list of all offers for a set"""
 
     # Check if set is in database
-    if not set_in_sets(set_id):
+    if not set_in_db(set_id):
         raise Exception(f'Set {set_id} is not in database')
     
     conn = sqlite3.connect(db_path)
@@ -224,12 +236,12 @@ def get_all_offers(set_id: int):
 
     return offers
 
-def get_sets_urls(set_id: int):
+def get_sets_urls(set_id: int) -> list[str]:
     """Returns a list of all offer URLs from a database table for a set"""
 
     # Check if set is in database
-    if not set_in_sets(set_id):
-        raise Exception(f'Set {set_id} is not in database')
+    if not set_in_db(set_id):
+        raise Exception(f'Set number {set_id} is not in database')
     
     conn = sqlite3.connect(db_path)
     c = conn.cursor()
@@ -245,7 +257,7 @@ def get_sets_urls(set_id: int):
 
     return urls
 
-def get_table_column_names(table: str):
+def get_table_column_names(table: str) -> list[str]:
     """Returns a list of all column names in a table"""
 
     conn = sqlite3.connect(db_path)
@@ -261,6 +273,11 @@ def get_table_column_names(table: str):
 
     return columns
 
+def get_set_id(offer_id: str) -> int:
+    """Returns set_id if offer is in database, None otherwise"""
+    offer = get_offer(offer_id)
+    return offer[2] if offer else None
+
 #---------------------------------#
 #-Functions for updating database-#
 #---------------------------------#
@@ -268,7 +285,7 @@ def update_offers(set_id: int, offers: list[Offer]):
     """Updates offers in database for specified set"""
 
     # Check if set is in database
-    if not set_in_sets(set_id):
+    if not set_in_db(set_id):
         raise Exception(f'Set {set_id} is not in database')
     
     conn = sqlite3.connect(db_path)
