@@ -47,7 +47,7 @@ class Set:
         for url in self.urls:
             try:
                 offer = Offer(url)
-                if offer.set_id != set_id:
+                if offer.set_id != set_id and offer.is_active:
                     continue
             except Exception as e:
                 print(e)

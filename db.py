@@ -288,13 +288,14 @@ def update_offers(set_id: int, offers: list[Offer]):
     if not set_in_db(set_id):
         raise Exception(f'Set {set_id} is not in database')
     
-    conn = sqlite3.connect(db_path)
-    c = conn.cursor()
 
     for offer in offers:
+        conn = sqlite3.connect(db_path)
+        c = conn.cursor()
+
         # 1) If offer is not in database, add it
         try:
-            add_offer(offer, set_id)
+            add_offer(offer)
         except Exception as e:
             # Catch exception if offer is already in database
             pass
@@ -307,11 +308,14 @@ def update_offers(set_id: int, offers: list[Offer]):
         c.execute(f"""
             SELECT date_added
             FROM set_{set_id}
-            WHERE offer_id = ?;
+            WHERE offer_id = ?
+            ;
             """,
             (offer.offer_id, )
         )
-        date_added = datetime.strptime(c.fetchone()[0], '%Y-%m-%d').date()
+        date_added_str = c.fetchone()[0]
+
+        date_added = datetime.strptime(date_added_str, '%Y-%m-%d').date()
 
         # Get offers is_active
         c.execute(f"""
@@ -324,7 +328,7 @@ def update_offers(set_id: int, offers: list[Offer]):
         is_active = c.fetchone()[0]
 
         # If offer expired
-        if not offer.is_active and is_active and date.today() - date_added >= 30:
+        if not offer.is_active and is_active and (date.today() - date_added).days >= 29:
             c.execute(f"""
                     UPDATE set_{set_id}
                     SET
@@ -379,7 +383,7 @@ def update_offers(set_id: int, offers: list[Offer]):
                 (offer.url, offer.set_id, offer.date_sold, offer.title, offer.description, offer.price, offer.is_negotiable, offer.is_active, offer.offer_id)
             )
 
-    conn.commit()
-    conn.close()
+        conn.commit()
+        conn.close()
 
     print(f'Offers for set {set_id} updated')

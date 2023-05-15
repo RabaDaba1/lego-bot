@@ -29,6 +29,17 @@ class Offer:
         Returns a list with the offer's data
     """
 
+    url: str
+    offer_id: str
+    set_id: int = None
+    date_added: datetime.date = None
+    date_sold: datetime.date = None
+    title: str = None
+    description: str = None
+    price: str = None
+    is_negotiable: bool = None
+    is_active: bool = None
+
     def __init__(self, url: str):
         scraper = OfferScraper(url)
 
