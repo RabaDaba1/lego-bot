@@ -17,7 +17,7 @@ def set_table_exists(set_id: int) -> bool:
 
     return f'set_{set_id}' in get_all_tables()
 
-def offer_in_db(offer_id: str, set_id: int = None) -> int:
+def offer_in_db(offer_id: str, set_id: int = None) -> bool:
     """Returns True if offer is in database, False otherwise"""
     offer = get_offer(offer_id, set_id)
 
@@ -273,7 +273,7 @@ def get_table_column_names(table: str) -> list[str]:
 
     return columns
 
-def get_set_id(offer_id: str) -> int:
+def get_set_id(offer_id: str) -> int or None:
     """Returns set_id if offer is in database, None otherwise"""
     offer = get_offer(offer_id)
     return offer[2] if offer else None
