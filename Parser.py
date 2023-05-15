@@ -33,7 +33,7 @@ def get_set_id(title: str) -> int:
 
     set_id = re.search(r"\b\d{4,5}\b", title)
 
-    return int(set_id.group()) if set_id else 0
+    return int(set_id.group()) if set_id else None
 
 def parse_offer_id(url: str) -> str:
     """Method to parse offer's ID from URL"""

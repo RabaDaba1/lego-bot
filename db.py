@@ -4,7 +4,9 @@ from Offer import Offer
 
 db_path = './database/database.db'
 
-
+#--------------------#
+#-Checking functions-#
+#--------------------#
 def set_in_sets(set_id: int) -> bool:
     """Returns True if set is in database, False otherwise"""
 
@@ -15,6 +17,52 @@ def set_table_exists(set_id: int) -> bool:
 
     return f'set_{set_id}' in get_all_tables()
 
+def offer_in_db(offer_id: str, set_id: int = None) -> int:
+    """
+    Returns set_id if offer is in database, 0 otherwise
+    """
+    if set_id:
+        # Check if table exists
+        if not set_table_exists(set_id):
+            raise Exception(f'Set {set_id} table does not exist')
+        
+        # Check if set is in database
+        if not set_in_sets(set_id):
+            raise Exception(f'Set {set_id} is not in sets table')
+        
+    
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+
+    # If set_id is passed, check specific table
+    if set_id:
+        command = f"""
+            SELECT offer_id
+            FROM set_{set_id}
+            WHERE offer_id = ?;
+        """
+        c.execute(command, (offer_id, ))
+        offer = c.fetchone()
+        conn.close()
+
+        return set_id if offer else 0
+    # If set_id is not passed, check all tables
+    else:
+        for set_id in get_all_sets():
+            command = f"""
+                SELECT offer_id
+                FROM set_{set_id}
+                WHERE offer_id = ?;
+            """
+            c.execute(command, (offer_id, ))
+            if c.fetchone():
+                conn.close()
+                return set_id
+        return 0
+
+#--------------------------------#
+#-Functions for editing database-#
+#--------------------------------#
 def add_set(set_id: int):
     """Adds a new LEGO set to sets table and creates a new table for it"""
 
@@ -81,6 +129,48 @@ def delete_set(set_id: int):
 
     print(f'Set {set_id} deleted from database')
 
+def add_offer(offer: Offer):
+    """Adds an offer to a its set table"""
+
+    # Check if offer has a set_id
+    if not offer.set_id:
+        raise Exception('Passed Offer object has a set_id of None')
+
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+
+    # If offer is not in database, add it
+    if not offer_in_db(offer.offer_id, offer.set_id):
+        c.execute(f"""
+            INSERT INTO set_{offer.set_id} (
+                offer_id,
+                url,
+                set_id,
+                date_added,
+                date_sold,
+                title,
+                description,
+                price,
+                is_negotiable,
+                is_active
+            )
+            VALUES (
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            )
+            """,
+            offer.get_tuple()
+        )
+
+        conn.commit()
+        conn.close()
+    else:
+        conn.close()
+        raise Exception(f'Offer {offer.offer_id} is already in database in table set_{offer.set_id}')
+
+
+#-------------------------------#
+#-Functions for retrieving data-#
+#-------------------------------#
 def get_all_sets():
     """Returns a list of all sets in sets table"""
 
@@ -171,6 +261,9 @@ def get_table_column_names(table: str):
 
     return columns
 
+#---------------------------------#
+#-Functions for updating database-#
+#---------------------------------#
 def update_offers(set_id: int, offers: list[Offer]):
     """Updates offers in database for specified set"""
 
@@ -182,36 +275,18 @@ def update_offers(set_id: int, offers: list[Offer]):
     c = conn.cursor()
 
     for offer in offers:
-        # Check if offer is already in database by checking its ID
-        c.execute(f"""
-            SELECT offer_id
-            FROM set_{set_id}
-            WHERE offer_id = ?;
-            """,
-            (offer.offer_id, )
-        )
-        offer_id = c.fetchone()
-
-        # If offer is not in database, add it
-        if not offer_id:
-            c.execute(f"""
-                INSERT INTO set_{set_id} (
-                    offer_id,
-                    url,
-                    set_id,
-                    date_added,
-                    date_sold,
-                    title,
-                    description,
-                    price,
-                    is_negotiable,
-                    is_active
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-            """, offer.get_tuple())
-
+        # 1) If offer is not in database, add it
+        try:
+            add_offer(offer, set_id)
+        except Exception as e:
+            # Catch exception if offer is already in database
+            pass
+        else:
+            print(f'New offer {offer.offer_id} added to database to set_{set_id}')
             continue
-        
+
+        # 2) If offer is in database, check if it needs to be updated
+        # Get offers date_added
         c.execute(f"""
             SELECT date_added
             FROM set_{set_id}
@@ -221,6 +296,7 @@ def update_offers(set_id: int, offers: list[Offer]):
         )
         date_added = datetime.strptime(c.fetchone()[0], '%Y-%m-%d').date()
 
+        # Get offers is_active
         c.execute(f"""
             SELECT is_active
             FROM set_{set_id}
@@ -230,7 +306,7 @@ def update_offers(set_id: int, offers: list[Offer]):
         )
         is_active = c.fetchone()[0]
 
-        # Check if offer expired
+        # If offer expired
         if not offer.is_active and is_active and date.today() - date_added >= 30:
             c.execute(f"""
                     UPDATE set_{set_id}
