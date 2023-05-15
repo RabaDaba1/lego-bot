@@ -103,7 +103,9 @@ class SetScraper:
     
     def get_all_sets(self) -> list:
         offer_page = BeautifulSoup(requests.get(self.url).text, 'lxml')
-        page_count = int(offer_page.select_one('ul.pagination-list > li:last-of-type').text)
+        
+        page_count_html = offer_page.select_one('ul.pagination-list > li:last-of-type')
+        page_count = int(page_count_html.text) if page_count_html else 1
 
         offer_links = []
         for i in range(1, page_count + 1):
