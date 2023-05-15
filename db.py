@@ -213,7 +213,7 @@ def get_set_tables() -> list[str]:
     
     return [table for table in tables if table.startswith('set_')]
 
-def get_all_offers(set_id: int) -> list[tuple]:
+def get_offers(set_id: int) -> list[tuple]:
     """Returns a list of all offers for a set"""
 
     # Check if set is in database
