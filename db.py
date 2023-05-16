@@ -160,7 +160,10 @@ def delete_offer(offer_id: str, set_id: int):
 #-Functions for retrieving data-#
 #-------------------------------#
 def get_offer(offer_id: int, set_id: int = None) -> tuple:
-    """Returns an offer tuple from database"""
+    """
+    Returns an offer tuple from database
+    If offer is not in database, returns an empty tuple
+    """
 
     conn = sqlite3.connect(db_path)
     c = conn.cursor()
