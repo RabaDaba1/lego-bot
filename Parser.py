@@ -35,14 +35,13 @@ def parse_set_id(title: str) -> int:
     # Get list of all matches
     matches = re.findall(regex, title)
 
-    # If there are no matches, return None
     if len(matches) == 0:
         return None
     elif len(matches) == 1:
         return int(matches[0])
     else:
         # If there are more than one match raise an error
-        raise ValueError(f"More than one set ID found in title: {title}")
+        raise Exception(f"More than one set ID found in title: {title}")
     
 
 def parse_offer_id(url: str) -> str:
