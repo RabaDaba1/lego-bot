@@ -130,6 +130,32 @@ def add_offer(offer: Offer):
         conn.close()
         raise Exception(f'Offer {offer.offer_id} is already in database in table set_{offer.set_id}')
 
+def delete_offer(offer_id: str, set_id: int):
+    """Deletes an offer from its set table"""
+    offer = get_offer(offer_id)
+
+    # Check if offer is in database
+    if not offer:
+        raise Exception(f'Offer {offer_id} is not in database')
+    
+    offer_id = offer[0]
+    # set_id = offer[2]
+
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+
+    c.execute(f"""
+        DELETE FROM set_{set_id}
+        WHERE offer_id = ?;
+        """,
+        (offer_id, )
+    )
+
+    conn.commit()
+    conn.close()
+
+    print(f'Offer {offer_id} with set number {set_id} deleted from database')
+
 #-------------------------------#
 #-Functions for retrieving data-#
 #-------------------------------#
