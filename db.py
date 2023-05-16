@@ -343,7 +343,7 @@ def update_offers(set_id: int, offers: list[Offer]):
             days_active = (date.today() - date_added).days
 
             print('--------------------------------------')
-            print(f'Offer with set id {set_id} sold for {price}zł after {days_active} days: {offer.url}')
+            print(f'Set {set_id} sold for {price}zł after {days_active} days: {offer.url}')
             print('--------------------------------------')
         # If offer got reactivated
         elif not is_active and offer.is_active:
