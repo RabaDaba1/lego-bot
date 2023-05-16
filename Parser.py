@@ -28,7 +28,7 @@ def parse_description(description: str) -> str:
 
     return description
 
-def get_set_id(title: str) -> int:
+def parse_set_id(title: str) -> int:
     """Method to parse LEGO set number from title"""
     regex = r"\b\d{4,5}\b"
     

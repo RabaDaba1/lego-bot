@@ -57,7 +57,7 @@ class Offer:
         self.price = parse_price(scraper.scrape_price())
         self.description = remove_accents(parse_description(scraper.scrape_description()))
         self.is_negotiable = (scraper.scrape_negotiable())
-        self.set_id = get_set_id(self.title)
+        self.set_id = parse_set_id(self.title)
 
     def get_tuple(self) -> tuple:
         return (
