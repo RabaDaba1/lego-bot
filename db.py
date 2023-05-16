@@ -287,7 +287,6 @@ def update_offers(set_id: int, offers: list[Offer]):
     # Check if set is in database
     if not set_in_db(set_id):
         raise Exception(f'Set {set_id} is not in database')
-    
 
     for offer in offers:
         conn = sqlite3.connect(db_path)
@@ -300,32 +299,22 @@ def update_offers(set_id: int, offers: list[Offer]):
             # Catch exception if offer is already in database
             pass
         else:
-            print(f'New offer {offer.offer_id} added to database to set_{set_id}')
+            print(f'New offer {offer.url} added to database table set_{set_id}')
             continue
 
         # 2) If offer is in database, check if it needs to be updated
-        # Get offers date_added
+        # Get offers date_added and is_active
         c.execute(f"""
-            SELECT date_added
+            SELECT date_added, is_active, price
             FROM set_{set_id}
             WHERE offer_id = ?
             ;
             """,
             (offer.offer_id, )
         )
-        date_added_str = c.fetchone()[0]
 
+        date_added_str, is_active, price = c.fetchone()
         date_added = datetime.strptime(date_added_str, '%Y-%m-%d').date()
-
-        # Get offers is_active
-        c.execute(f"""
-            SELECT is_active
-            FROM set_{set_id}
-            WHERE offer_id = ?;
-            """,
-            (offer.offer_id, )
-        )
-        is_active = c.fetchone()[0]
 
         # If offer expired
         if not offer.is_active and is_active and (date.today() - date_added).days >= 29:
@@ -351,7 +340,11 @@ def update_offers(set_id: int, offers: list[Offer]):
                 (date.today().isoformat(), offer.is_active, offer.offer_id)
             )
 
-            print(f'Offer sold: {offer.url}')
+            days_active = (date.today() - date_added).days
+
+            print('--------------------------------------')
+            print(f'Offer with set id {set_id} sold for {price}zł after {days_active} days: {offer.url}')
+            print('--------------------------------------')
         # If offer got reactivated
         elif not is_active and offer.is_active:
             c.execute(f"""
