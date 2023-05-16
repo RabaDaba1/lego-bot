@@ -30,10 +30,20 @@ def parse_description(description: str) -> str:
 
 def get_set_id(title: str) -> int:
     """Method to parse LEGO set number from title"""
+    regex = r"\b\d{4,5}\b"
+    
+    # Get list of all matches
+    matches = re.findall(regex, title)
 
-    set_id = re.search(r"\b\d{4,5}\b", title)
-
-    return int(set_id.group()) if set_id else None
+    # If there are no matches, return None
+    if len(matches) == 0:
+        return None
+    elif len(matches) == 1:
+        return int(matches[0])
+    else:
+        # If there are more than one match raise an error
+        raise ValueError(f"More than one set ID found in title: {title}")
+    
 
 def parse_offer_id(url: str) -> str:
     """Method to parse offer's ID from URL"""
