@@ -36,7 +36,7 @@ class Set:
         self.set_id = set_id
         
         # Get all urls from OLX
-        self.urls = SetScraper(set_id).get_all_sets()
+        self.urls = SetScraper(set_id).urls
         # Get all urls from database
         self.urls += db.get_sets_urls(set_id)
 
@@ -58,5 +58,5 @@ class Set:
             else:
                 self.offers.append(offer)
 
-    def update_offers(self):
+    def update_db(self):
         db.update_offers(self.set_id, self.offers)

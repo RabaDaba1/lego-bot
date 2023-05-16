@@ -85,6 +85,8 @@ class SetScraper:
         LEGO set number
     url: str
         URL of the first page with offers
+    urls: list
+        List of URLs of all offers for the set
     used: bool
         If True, scrapes only used sets, otherwise scrapes only new sets
     
@@ -100,6 +102,8 @@ class SetScraper:
         self.set_id = set_id
         self.url = f'https://www.olx.pl/oferty/q-lego-{set_id}/'
         self.used = used
+
+        self.urls = self.get_all_sets()
     
     def get_all_sets(self) -> list:
         offer_page = BeautifulSoup(requests.get(self.url).text, 'lxml')
