@@ -328,6 +328,7 @@ def update_offers(set_id: int, offers: list[Offer]):
             # Catch exception if offer is already in database
             pass
         else:
+            print('--------------------------------------')
             print(f'New offer {offer.url} added to database table set_{set_id}')
             continue
 
@@ -371,7 +372,6 @@ def update_offers(set_id: int, offers: list[Offer]):
 
             days_active = (date.today() - date_added).days
 
-            print('--------------------------------------')
             print(f'Set {set_id} sold for {price}zł after {days_active} days: {offer.url}')
             print('--------------------------------------')
         # If offer got reactivated
@@ -387,6 +387,7 @@ def update_offers(set_id: int, offers: list[Offer]):
             )
 
             print(f'Offer reactivated: {offer.url}')
+            print('--------------------------------------')
         # If offer is active and not sold
         elif is_active and offer.is_active:
             c.execute(f"""
