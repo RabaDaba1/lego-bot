@@ -328,8 +328,8 @@ def update_offers(set_id: int, offers: list[Offer]):
             # Catch exception if offer is already in database
             pass
         else:
-            print('--------------------------------------')
             print(f'New offer {offer.url} added to database table set_{set_id}')
+            print('--------------------------------------')
             continue
 
         # 2) If offer is in database, check if it needs to be updated
