@@ -1,6 +1,6 @@
 # Lego-Bot
 
-Lego-Bot is a Python project that uses Pandas, Beautiful Soup, and SQLite libraries. It is mainly build for lego investors to help them make more accurate predictions. The program scrapes Lego set listings from a website and checks their prices or whether they have been sold every day. Once it has collected enough data about a particular set, it predicts its price. 
+Lego-Bot is a project mainly build for lego investors to help them make more accurate predictions. It uses Pandas, Beautiful Soup, and SQLite libraries. The program scrapes Lego set listings from a website (OLX.pl) and checks their prices or whether they have been sold every day. Once it has collected enough data about a particular set, it predicts its price. 
 
 ## Getting Started
 
