@@ -17,14 +17,14 @@ pip install pandas bs4
 ## Usage
 
 ### Adding a new set to the database
-Call Set.add_set(set_id) in main.ipynb
+Call `Set.add_set(set_id)` in `main.ipynb`
 
 ### Deleting a set from the database
-Call Set.delete_set(set_id) in main.ipynb
+Call `Set.delete_set(set_id)` in `main.ipynb`
 
 ### Getting all offers for a set and updating the database with them
-1. Create a new Set object with the set_id of the set you want to get offers for
-2. Call the update_db() method on the Set object
+1. Create a new `Set` object with the `set_id` of the set you want to get offers for
+2. Call the `update_db()` method on the `Set` object
 3. Done! The set is now in the database
 
 ### How offer is represented in the database
