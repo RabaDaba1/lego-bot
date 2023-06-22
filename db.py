@@ -358,6 +358,7 @@ def update_offers(set_id: int, offers: list[Offer]):
             )
             
             print(f'Offer expired: {offer.url}')
+            print('--------------------------------------')
         # If offer got sold
         elif is_active and not offer.is_active:
             c.execute(f"""
@@ -409,4 +410,4 @@ def update_offers(set_id: int, offers: list[Offer]):
         conn.commit()
         conn.close()
 
-    print(f'Offers for set {set_id} updated')
+    print('\033[92m' + f'Offers for set {set_id} updated')
