@@ -4,6 +4,7 @@ import pandas as pd
 import db
 
 def add_set(set_id: int):
+    """Adds set to database."""
     try:
         db.add_set(set_id)
     except Exception as e:
@@ -11,6 +12,7 @@ def add_set(set_id: int):
 
 
 def delete_set(set_id: int):
+    """Deletes set from database."""
     try:
         db.delete_set(set_id)
     except Exception as e:
@@ -62,7 +64,7 @@ class Set:
     def update_db(self):
         db.update_offers(self.set_id, self.offers)
         
-    def get_data(self):
+    def get_scraped_data(self) -> pd.DataFrame:
         """
         Returns data from scraped offers. Offers with None values in all columns beside ID and url are not active. 
         """
