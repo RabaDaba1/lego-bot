@@ -1,5 +1,6 @@
 from Scraper import SetScraper
 from Offer import Offer
+import pandas as pd
 import db
 
 def add_set(set_id: int):
@@ -17,7 +18,7 @@ def delete_set(set_id: int):
 
 class Set:
     """
-    A class to represent a LEGO set
+    A class to represent a LEGO set. Constructor scrapes all urls for the set from OLX + urls from database.
 
     Attributes:
     -----------
@@ -60,3 +61,13 @@ class Set:
 
     def update_db(self):
         db.update_offers(self.set_id, self.offers)
+        
+    def get_data(self):
+        """
+        Returns data from scraped offers. Offers with None values in all columns beside ID and url are not active. 
+        """
+        return pd.DataFrame(
+            [offer.get_tuple()[1:] for offer in self.offers],
+            index=[offer.offer_id for offer in self.offers],
+            columns=['url', 'set_id', 'date_added', 'date_sold', 'title', 'description', 'price', 'is_negotiable', 'is_active']
+        )
