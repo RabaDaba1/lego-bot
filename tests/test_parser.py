@@ -36,7 +36,7 @@ def test_title_and_description_parser(title: str, expected: str):
     ("LEGO 123456 Obi-Wan Kenobi", None),
     ("LEGO 1234Star Wars", None),
 ])
-def test_set_id_parser(id: str, expected: int | None):
+def test_set_id_parser(id: str, expected: int or None):
     assert Parser.parse_set_id(id) == expected
 
 def test_set_id_parser_exception():
