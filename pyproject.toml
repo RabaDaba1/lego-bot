@@ -18,9 +18,9 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 dependencies = [
-    "requests",
-    "beautifulsoup4",
-    "pandas",
+    "requests==2.31.0",
+    "beautifulsoup4==4.12.2",
+    "pandas==2.0.1",
     "pytest",
     "pytest-cov"
 ]
