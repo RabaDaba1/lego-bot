@@ -3,14 +3,14 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "lego_bot_rabadaba1"
+name = "lego_bot"
 version = "1.0"
 authors = [
   {name = "rabadaba1", email="krabczewski@gmail.com"}
 ]
 description = "Program for getting information about lego sets from olx.pl"
 readme = "README.md"
-requires-python = ">=3.8.0"
+requires-python = ">=3.6.0"
 keywords = ["lego", "olx", "bot", "web-scrapping", "prediction", "price", "investing"]
 classifiers = [
     "License :: OSI Approved :: MIT License",

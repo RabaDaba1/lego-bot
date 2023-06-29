@@ -1,6 +1,6 @@
 import pytest
 import datetime
-from lego_bot_rabadaba1 import Parser
+from lego_bot import Parser
 
 
 @pytest.mark.parametrize("price, expected", [
