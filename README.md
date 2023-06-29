@@ -1,4 +1,5 @@
 # Lego-Bot
+![Tests](https://github.com/RabaDaba1/lego-bot/actions/workflows/tests.yml/badge.svg)
 
 Lego-Bot is a project mainly build for lego investors to help them make more accurate predictions. It uses Pandas, Beautiful Soup, and SQLite libraries. The program scrapes Lego set listings from a website (OLX.pl) and checks their prices or whether they have been sold every day. Once it has collected enough data about a particular set, it predicts its price so you can check if specific set is worth investing in. 
 
