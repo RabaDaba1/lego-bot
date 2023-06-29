@@ -1,8 +1,9 @@
 import sqlite3
+import os
 from datetime import date, datetime
-from Offer import Offer
+from .Offer import Offer
 
-db_path = './database/database.db'
+db_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'database', 'database.db')
 
 #--------------------#
 #-Checking functions-#

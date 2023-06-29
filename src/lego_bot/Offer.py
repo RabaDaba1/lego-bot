@@ -1,7 +1,7 @@
 import pandas as pd
 
-from Scraper import OfferScraper
-from Parser import *
+from .Scraper import OfferScraper
+from .Parser import *
 
 class Offer:
     """

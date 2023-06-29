@@ -1,7 +1,7 @@
-from Scraper import SetScraper
-from Offer import Offer
+from .Scraper import SetScraper
+from .Offer import Offer
 import pandas as pd
-import db
+from . import db
 
 def add_set(set_id: int):
     """Adds set to database."""
