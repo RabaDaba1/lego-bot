@@ -12,7 +12,7 @@ pip install .
 
 ## Usage
 
-### Example of Lego Bot usage is in tutorial.ipynb
+Example of Lego Bot usage is in `tutorial.ipynb`
 
 ### Adding a new set to the database
 Call `Set.add_set(set_id)`
