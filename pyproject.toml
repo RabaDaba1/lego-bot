@@ -21,9 +21,10 @@ dependencies = [
     "requests==2.31.0",
     "beautifulsoup4==4.12.2",
     "pandas==2.0.1",
-    "pytest",
-    "pytest-cov",
-    "matplotlib"
+    "seaborn==0.12.2",
+    "pytest==7.4.0",
+    "pytest-cov==4.1.0",
+    "matplotlib==3.7.2"
 ]
 
 [project.urls]

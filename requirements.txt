@@ -1,7 +1,8 @@
 requests==2.31.0
 beautifulsoup4==4.12.2
 pandas==2.0.1
-matplotlib
-pytest
-pytest-cov
-lxml
+seaborn==0.12.2
+matplotlib==3.7.2
+pytest==7.4.0
+pytest-cov==4.1.0
+lxml==4.9.3
