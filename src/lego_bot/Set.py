@@ -122,9 +122,10 @@ class Set:
         sold_offers = self.get_sold_offers()
         
         sold_offers['date_sold_seconds'] = sold_offers['date_sold'].apply(lambda x: x.timestamp())
-        sns.regplot(x='date_sold_seconds', y='price', data=sold_offers)
+        ax1 = sns.regplot(x='date_sold_seconds', y='price', data=sold_offers)
+        ax1.set(title=f'Price trend for set {self.set_id}', xlabel='Date sold', ylabel='Price')
 
-        ax = plt.gca()
-        xticks = ax.get_xticks()
+        ax2 = plt.gca()
+        xticks = ax2.get_xticks()
         xticks_dates = [datetime.datetime.fromtimestamp(x).strftime('%Y-%m-%d') for x in xticks]
-        ax.set_xticklabels(xticks_dates)
+        ax2.set_xticklabels(xticks_dates)
