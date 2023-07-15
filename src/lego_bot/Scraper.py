@@ -54,7 +54,7 @@ class OfferScraper:
 
     @catch_exceptions
     def scrape_price(self):
-        return self.offer.find('h3', class_='css-ddweki er34gjf0').text
+        return self.offer.find('h2', class_='css-5ufiv7 er34gjf0').text
 
     @catch_exceptions
     def scrape_title(self):
