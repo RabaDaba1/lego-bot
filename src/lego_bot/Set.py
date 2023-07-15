@@ -79,6 +79,8 @@ class Set:
                 continue
             else:
                 self.offers.append(offer)
+                
+        print('\033[92m' + f"Scraped {len(self.offers)} offers" + '\033[0m')
         
     def get_scraped_data(self) -> pd.DataFrame:
         """
