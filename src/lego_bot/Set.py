@@ -23,7 +23,7 @@ def delete_set(set_id: int):
         print(e)
 class Set:
     """
-    A class to represent a LEGO set. Constructor scrapes all urls for the set from OLX + urls from database.
+    A class to represent a LEGO set.
 
     Attributes:
     -----------
@@ -52,9 +52,12 @@ class Set:
             self.update_db()
 
     def update_db(self):
+        """Updates database with scraped offers."""
         db.update_offers(self.set_id, self.offers)
         
     def scrape(self):
+        """Scrapes all offers data from OLX + urls from database for particular LEGO set."""
+        
         # Get all urls from OLX and database
         self.urls = SetScraper(self.set_id).urls
         self.urls += db.get_sets_urls(self.set_id)
@@ -88,6 +91,7 @@ class Set:
         )
         
     def get_db_data(self) -> pd.DataFrame:
+        """Returns all offer from database for particular LEGO set."""
         df = pd.DataFrame(db.get_offers(self.set_id), columns=['offer_id', 'url', 'set_id', 'date_added', 'date_sold', 'title', 'description', 'price', 'is_negotiable', 'is_active'])
         
         df['date_added'] = pd.to_datetime(df['date_added'])
@@ -96,6 +100,7 @@ class Set:
         return df
 
     def get_sold_offers(self) -> pd.DataFrame:
+        """Returns all sold offers from database for particular LEGO set."""
         database_df = self.get_db_data()
         filtr = database_df['date_sold'].notnull()
 
@@ -104,6 +109,7 @@ class Set:
         return sold_offers
 
     def plot_trend(self):
+        """Plots regression plot of sold offers price over time."""
         sold_offers = self.get_sold_offers()
         
         sold_offers['date_sold_seconds'] = sold_offers['date_sold'].apply(lambda x: x.timestamp())
