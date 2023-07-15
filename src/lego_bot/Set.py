@@ -47,9 +47,11 @@ class Set:
             
         if scrape_and_update_db:
             print("Scraping offers from OLX")
+            print("--------------------------------------")
             self.scrape()
             
             print("\nUpdating database")
+            print("--------------------------------------")
             self.update_db()
 
     def update_db(self):
