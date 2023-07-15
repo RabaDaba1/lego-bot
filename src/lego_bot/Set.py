@@ -6,12 +6,12 @@ import datetime
 
 from .Scraper import SetScraper
 from .Offer import Offer
-from . import db
+from . import database
 
 def add_set(set_id: int):
         """Adds set to database."""
         try:
-            db.add_set(set_id)
+            database.add_set(set_id)
         except Exception as e:
             print(e)
 
@@ -19,7 +19,7 @@ def add_set(set_id: int):
 def delete_set(set_id: int):
     """Deletes set from database."""
     try:
-        db.delete_set(set_id)
+        database.delete_set(set_id)
     except Exception as e:
         print(e)
 class Set:
@@ -42,7 +42,7 @@ class Set:
     def __init__(self, set_id: int, scrape_and_update_db = True):
         self.set_id = set_id
         
-        if not db.set_table_exists(self.set_id):
+        if not database.set_in_db(self.set_id):
             add_set(self.set_id)
             
         if scrape_and_update_db:
@@ -56,20 +56,20 @@ class Set:
 
     def update_db(self):
         """Updates database with scraped offers."""
-        db.update_offers(self.set_id, self.offers)
+        database.update_offers(self.set_id, self.offers)
         
     def scrape(self):
         """Scrapes all offers data from OLX + urls from database for particular LEGO set."""
         
         # Get all urls from OLX and database
         self.urls = SetScraper(self.set_id).urls
-        self.urls += db.get_sets_urls(self.set_id)
+        self.urls += database.get_sets_urls(self.set_id)
 
         # Remove duplicates
         self.urls = list(set(self.urls))
 
         self.offers = []
-        not_added_offers = [] # Offers listing multiple sets
+        not_added_offers = [] # Offer urls listing multiple sets
         for url in tqdm(self.urls):
             try:
                 offer = Offer(url)
@@ -78,7 +78,7 @@ class Set:
                     continue
             except Exception as e:
                 if e.args[0] == 'More than one set ID found':
-                    not_added_offers.append(offer)
+                    not_added_offers.append(url)
                 continue
             except:
                 print('Unknown error while creating offer:', url)
@@ -101,7 +101,7 @@ class Set:
         
     def get_db_data(self) -> pd.DataFrame:
         """Returns all offer from database for particular LEGO set."""
-        df = pd.DataFrame(db.get_offers(self.set_id), columns=['offer_id', 'url', 'set_id', 'date_added', 'date_sold', 'title', 'description', 'price', 'is_negotiable', 'is_active'])
+        df = pd.DataFrame(database.get_offers(self.set_id), columns=['offer_id', 'url', 'set_id', 'date_added', 'date_sold', 'title', 'description', 'price', 'is_negotiable', 'is_active'])
         
         df['date_added'] = pd.to_datetime(df['date_added'])
         df['date_sold'] = pd.to_datetime(df['date_sold'])

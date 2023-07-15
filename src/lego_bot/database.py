@@ -189,19 +189,7 @@ def get_offer(offer_id: int, set_id: int = None) -> tuple:
 
 def get_all_sets() -> list[int]:
     """Returns a list of all sets in sets table"""
-
-    conn = sqlite3.connect('./database/database.db')
-    c = conn.cursor()
-
-    c.execute(f"""
-        SELECT set_id
-        FROM sets;
-    """)
-
-    sets = [set_id[0] for set_id in c.fetchall()]
-    conn.close()
-    
-    return sets
+    return [int(table[4:]) for table in get_set_tables()]
 
 def get_all_tables() -> list[str]:
     """Prints all tables in database"""
