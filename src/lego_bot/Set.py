@@ -1,5 +1,6 @@
 from matplotlib import pyplot as plt
 import seaborn as sns
+from tqdm import tqdm
 import pandas as pd
 import datetime
 
@@ -66,13 +67,16 @@ class Set:
         self.urls = list(set(self.urls))
 
         self.offers = []
-        for url in self.urls:
+        not_added_offers = [] # Offers listing multiple sets
+        for url in tqdm(self.urls):
             try:
                 offer = Offer(url)
                 if offer.set_id != self.set_id and offer.is_active:
+                    not_added_offers.append(offer)
                     continue
             except Exception as e:
-                print(e)
+                if e.args[0] == 'More than one set ID found':
+                    not_added_offers.append(offer)
                 continue
             except:
                 print('Unknown error while creating offer:', url)
@@ -80,6 +84,7 @@ class Set:
             else:
                 self.offers.append(offer)
                 
+        print('\033[93m' + f"Skipped {len(not_added_offers)} offers that listed multiple sets" + '\033[0m')
         print('\033[92m' + f"Scraped {len(self.offers)} offers" + '\033[0m')
         
     def get_scraped_data(self) -> pd.DataFrame:
