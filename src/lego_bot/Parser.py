@@ -41,7 +41,7 @@ def parse_set_id(title: str) -> int:
         return int(matches[0])
     else:
         # If there are more than one match raise an error
-        raise Exception(f"More than one set ID found in title: {title}")
+        raise Exception(f"More than one set ID found in title: {title} " + '\033[93m' + "not added" + '\033[0m')
     
 
 def parse_offer_id(url: str) -> str:
