@@ -1,14 +1,18 @@
+from matplotlib import pyplot as plt
+import seaborn as sns
+import pandas as pd
+import datetime
+
 from .Scraper import SetScraper
 from .Offer import Offer
-import pandas as pd
 from . import db
 
 def add_set(set_id: int):
-    """Adds set to database."""
-    try:
-        db.add_set(set_id)
-    except Exception as e:
-        print(e)
+        """Adds set to database."""
+        try:
+            db.add_set(set_id)
+        except Exception as e:
+            print(e)
 
 
 def delete_set(set_id: int):
@@ -17,7 +21,6 @@ def delete_set(set_id: int):
         db.delete_set(set_id)
     except Exception as e:
         print(e)
-
 class Set:
     """
     A class to represent a LEGO set. Constructor scrapes all urls for the set from OLX + urls from database.
@@ -35,13 +38,26 @@ class Set:
     urls: list
     offers: list[Offer]
 
-    def __init__(self, set_id: int, used = False):
+    def __init__(self, set_id: int, scrape_and_update_db = True):
         self.set_id = set_id
         
-        # Get all urls from OLX
-        self.urls = SetScraper(set_id).urls
-        # Get all urls from database
-        self.urls += db.get_sets_urls(set_id)
+        if not db.set_table_exists(self.set_id):
+            add_set(self.set_id)
+            
+        if scrape_and_update_db:
+            print("Scraping offers from OLX")
+            self.scrape()
+            
+            print("\nUpdating database")
+            self.update_db()
+
+    def update_db(self):
+        db.update_offers(self.set_id, self.offers)
+        
+    def scrape(self):
+        # Get all urls from OLX and database
+        self.urls = SetScraper(self.set_id).urls
+        self.urls += db.get_sets_urls(self.set_id)
 
         # Remove duplicates
         self.urls = list(set(self.urls))
@@ -50,7 +66,7 @@ class Set:
         for url in self.urls:
             try:
                 offer = Offer(url)
-                if offer.set_id != set_id and offer.is_active:
+                if offer.set_id != self.set_id and offer.is_active:
                     continue
             except Exception as e:
                 print(e)
@@ -60,9 +76,6 @@ class Set:
                 continue
             else:
                 self.offers.append(offer)
-
-    def update_db(self):
-        db.update_offers(self.set_id, self.offers)
         
     def get_scraped_data(self) -> pd.DataFrame:
         """
@@ -73,3 +86,30 @@ class Set:
             index=[offer.offer_id for offer in self.offers],
             columns=['url', 'set_id', 'date_added', 'date_sold', 'title', 'description', 'price', 'is_negotiable', 'is_active']
         )
+        
+    def get_db_data(self) -> pd.DataFrame:
+        df = pd.DataFrame(db.get_offers(self.set_id), columns=['offer_id', 'url', 'set_id', 'date_added', 'date_sold', 'title', 'description', 'price', 'is_negotiable', 'is_active'])
+        
+        df['date_added'] = pd.to_datetime(df['date_added'])
+        df['date_sold'] = pd.to_datetime(df['date_sold'])
+        
+        return df
+
+    def get_sold_offers(self) -> pd.DataFrame:
+        database_df = self.get_db_data()
+        filtr = database_df['date_sold'].notnull()
+
+        sold_offers = database_df[filtr]
+        
+        return sold_offers
+
+    def plot_trend(self):
+        sold_offers = self.get_sold_offers()
+        
+        sold_offers['date_sold_seconds'] = sold_offers['date_sold'].apply(lambda x: x.timestamp())
+        sns.regplot(x='date_sold_seconds', y='price', data=sold_offers)
+
+        ax = plt.gca()
+        xticks = ax.get_xticks()
+        xticks_dates = [datetime.datetime.fromtimestamp(x).strftime('%Y-%m-%d') for x in xticks]
+        ax.set_xticklabels(xticks_dates)
