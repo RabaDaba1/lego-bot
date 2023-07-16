@@ -101,7 +101,10 @@ class Set:
         
     def get_db_data(self) -> pd.DataFrame:
         """Returns all offer from database for particular LEGO set."""
-        df = pd.DataFrame(database.get_offers(self.set_id), columns=['offer_id', 'url', 'set_id', 'date_added', 'date_sold', 'title', 'description', 'price', 'is_negotiable', 'is_active'])
+        offers = database.get_offers(self.set_id)
+        df = pd.DataFrame(data=offers, columns=['offer_id', 'url', 'set_id', 'date_added', 'date_sold', 'title', 'description', 'price', 'is_negotiable', 'is_active'])
+        
+        df.set_index('offer_id', inplace=True)
         
         df['date_added'] = pd.to_datetime(df['date_added'])
         df['date_sold'] = pd.to_datetime(df['date_sold'])
