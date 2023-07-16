@@ -94,10 +94,9 @@ class Set:
         Returns data from scraped offers. Offers with None values in all columns beside ID and url are not active. 
         """
         return pd.DataFrame(
-            [offer.get_tuple()[1:] for offer in self.offers],
-            index=[offer.offer_id for offer in self.offers],
-            columns=['url', 'set_id', 'date_added', 'date_sold', 'title', 'description', 'price', 'is_negotiable', 'is_active']
-        )
+            [offer.get_tuple() for offer in self.offers],
+            columns=['offer_id','url', 'set_id', 'date_added', 'date_sold', 'title', 'description', 'price', 'is_negotiable', 'is_active']
+        ).set_index('offer_id')
         
     def get_db_data(self) -> pd.DataFrame:
         """Returns all offer from database for particular LEGO set."""
